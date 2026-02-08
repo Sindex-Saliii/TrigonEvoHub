@@ -1,14 +1,4 @@
-local function Cehcww()
-    if not getgenv()._234ew3429sfkadadavjoanodiwajdojodjoadpajpojio28y98um1osiniucge78yq982eojqojepkdpakfpofowu or getgenv()._234ew3429sfkadadavjoanodiwajdojodjoadpajpojio28y98um1osiniucge78yq982eojqojepkdpakfpofowu == true then
-        game.Players.LocalPlayer:Kick("No Bypass Please")
-        return false
-    end
-    return true
-end
 
-if not Cehcww() then return end
-
-warn("[ Trigon ] - Fisch V1.1 Loaded")
 ---------// [ NOTIFY ] \\----------
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
