@@ -904,34 +904,6 @@ Tabs.Trigon:Button({
     end
 })
 
-Tabs.Trigon:Label({ 
-        Title = 'Executor',
-})
-
-Tabs.Trigon:TextBox({
-    Title = 'Editor',
-    Placeholder = 'Enter Script . . .',
-    Value = '',
-    ClearTextOnFocus = true,
-    Callback = function(v)
-        local input = v:gsub("^%s*(.-)%s*$", "%1")
-        if input == "" then
-            return
-        end
-        local func, err = loadstring(input)
-        if not func then
-            LiquidGlassNotify("Trigon Evo", "Error Loading Script: "..err, "rbxassetid://82500352718600", 10)
-            return
-        end
-        local success, runtimeError = pcall(func)
-        if not success then
-            LiquidGlassNotify("Trigon Evo", "Error Running Script: "..runtimeError, "rbxassetid://82500352718600", 10)
-            return
-        end
-        LiquidGlassNotify("Trigon Evo", "Script Executed Successfully", "rbxassetid://82500352718600", 5)
-    end
-})
-
 ----// [ Main Tabs ] \\----
 
 Tabs.Main:Toggle({
