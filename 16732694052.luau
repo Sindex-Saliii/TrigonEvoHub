@@ -1,222 +1,185 @@
-
----------// [ NOTIFY ] \\----------
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
-local function LiquidGlassNotify(Title, Text, Icon, Duration)
-	local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
-	local UI = PlayerGui:FindFirstChild("LiquidGlassNotifyUI")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
-	if not UI then
-		UI = Instance.new("ScreenGui")
-		UI.Name = "LiquidGlassNotifyUI"
-		UI.ResetOnSpawn = false
-		UI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-		UI.DisplayOrder = 9999
-		UI.Parent = PlayerGui
-	end
+if PlayerGui:FindFirstChild("LiquidUltraIsland") then
+	PlayerGui:FindFirstChild("LiquidUltraIsland"):Destroy()
+end
 
-	local NotifyContainer = UI:FindFirstChild("NotifyContainer")
-	if not NotifyContainer then
-		NotifyContainer = Instance.new("Frame")
-		NotifyContainer.Name = "NotifyContainer"
-		NotifyContainer.BackgroundTransparency = 1
-		NotifyContainer.Parent = UI
+local Screen = Instance.new("ScreenGui")
+Screen.Name = "LiquidUltraIsland"
+Screen.IgnoreGuiInset = true
+Screen.ResetOnSpawn = false
+Screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Screen.DisplayOrder = 999999
+Screen.Parent = PlayerGui
 
-		local UIList = Instance.new("UIListLayout")
-		UIList.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		UIList.HorizontalAlignment = Enum.HorizontalAlignment.Right
-		UIList.Padding = UDim.new(0, 15)
-		UIList.SortOrder = Enum.SortOrder.LayoutOrder
-		UIList.Parent = NotifyContainer
+local MasterHolder = Instance.new("Frame")
+MasterHolder.Name = "MasterHolder"
+MasterHolder.Size = UDim2.new(0, 400, 1, 0)
+MasterHolder.AnchorPoint = Vector2.new(0.5, 0)
+MasterHolder.Position = UDim2.new(0.5, 0, 0, 0)
+MasterHolder.BackgroundTransparency = 1
+MasterHolder.Parent = Screen
 
-		local UIPadding = Instance.new("UIPadding")
-		UIPadding.PaddingBottom = UDim.new(0, 40)
-		UIPadding.PaddingRight = UDim.new(0, 40)
-		UIPadding.PaddingTop = UDim.new(0, 40)
-		UIPadding.PaddingLeft = UDim.new(0, 40)
-		UIPadding.Parent = NotifyContainer
+local UIList = Instance.new("UIListLayout")
+UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIList.VerticalAlignment = Enum.VerticalAlignment.Top
+UIList.Padding = UDim.new(0, 12)
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+UIList.Parent = MasterHolder
 
-		if UserInputService.TouchEnabled then
-			NotifyContainer.Size = UDim2.new(1, 0, 0.5, 0)
-			NotifyContainer.Position = UDim2.new(0, 0, 0, 0)
-			UIList.VerticalAlignment = Enum.VerticalAlignment.Top
-			UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		else
-			NotifyContainer.Size = UDim2.new(0, 400, 1, 0)
-			NotifyContainer.Position = UDim2.new(1, -400, 0, 0)
-			UIList.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		end
-	end
+local Padding = Instance.new("UIPadding")
+Padding.PaddingTop = UDim.new(0, UserInputService.TouchEnabled and 35 or 40)
+Padding.Parent = MasterHolder
 
-	local DisplayTime = Duration or 5
-	local IconAsset = Icon or "rbxassetid://82500352718600"
+local BasePill = Instance.new("Frame")
+BasePill.Name = "00_BasePill"
+BasePill.Size = UDim2.new(0, 80, 0, 32)
+BasePill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+BasePill.BackgroundTransparency = 0.45
+BasePill.BorderSizePixel = 0
+BasePill.LayoutOrder = -1
+BasePill.Parent = MasterHolder
+
+local BaseCorner = Instance.new("UICorner")
+BaseCorner.CornerRadius = UDim.new(1, 0)
+BaseCorner.Parent = BasePill
+
+local BaseStroke = Instance.new("UIStroke")
+BaseStroke.Color = Color3.fromRGB(255, 255, 255)
+BaseStroke.Transparency = 0.5
+BaseStroke.Thickness = 1.8
+BaseStroke.Parent = BasePill
+
+function LiquidGlassNotify(title, desc, icon, duration)
+	local dur = duration or 5
+	local targetWidth = UserInputService.TouchEnabled and 310 or 360
+	local targetHeight = 72
 
 	local Card = Instance.new("Frame")
-	Card.Name = "LiquidCard"
-	Card.Size = UDim2.new(1, 0, 0, 0)
+	Card.Name = "NotifyCard"
+	Card.Size = UDim2.new(0, 80, 0, 0)
 	Card.BackgroundTransparency = 1
 	Card.ClipsDescendants = false
-	Card.LayoutOrder = -os.clock() * 1000
-	Card.Parent = NotifyContainer
+	Card.LayoutOrder = os.clock() * 1000
+	Card.Parent = MasterHolder
 
-	local MainGlass = Instance.new("CanvasGroup")
-	MainGlass.Name = "MainGlass"
-	MainGlass.Size = UDim2.new(0.5, 0, 0.5, 0)
-	MainGlass.Position = UDim2.new(0.5, 0, 0.5, 0)
-	MainGlass.AnchorPoint = Vector2.new(0.5, 0.5)
-	MainGlass.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-	MainGlass.BackgroundTransparency = 1
-	MainGlass.GroupTransparency = 1
-	MainGlass.BorderSizePixel = 0
-	MainGlass.Parent = Card
+	local MainBody = Instance.new("CanvasGroup")
+	MainBody.Name = "MainBody"
+	MainBody.Size = UDim2.new(0, 80, 0, 32)
+	MainBody.Position = UDim2.new(0.5, -40, 0, -44)
+	MainBody.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	MainBody.BackgroundTransparency = 0.35
+	MainBody.GroupTransparency = 1
+	MainBody.BorderSizePixel = 0
+	MainBody.Parent = Card
 
-	local GlassCorner = Instance.new("UICorner")
-	GlassCorner.CornerRadius = UDim.new(0, 22)
-	GlassCorner.Parent = MainGlass
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(1, 0)
+	Corner.Parent = MainBody
 
-	local Gradient = Instance.new("UIGradient")
-	Gradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 180, 200))
-	})
-	Gradient.Rotation = 45
-	Gradient.Parent = MainGlass
-
-	local ReflectionOverlay = Instance.new("Frame")
-	ReflectionOverlay.Name = "Reflection"
-	ReflectionOverlay.Size = UDim2.new(1, 0, 1, 0)
-	ReflectionOverlay.BackgroundTransparency = 1
-	ReflectionOverlay.Parent = MainGlass
-
-	local ReflectionGradient = Instance.new("UIGradient")
-	ReflectionGradient.Rotation = -45
-	ReflectionGradient.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.8),
-		NumberSequenceKeypoint.new(0.5, 1),
-		NumberSequenceKeypoint.new(1, 0.9)
-	})
-	ReflectionGradient.Parent = ReflectionOverlay
-
-	local InnerStroke = Instance.new("UIStroke")
-	InnerStroke.Color = Color3.fromRGB(255, 255, 255)
-	InnerStroke.Transparency = 0.9
-	InnerStroke.Thickness = 1.8
-	InnerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	InnerStroke.Parent = MainGlass
-
-	local Glow = Instance.new("ImageLabel")
-	Glow.Name = "Aura"
-	Glow.BackgroundTransparency = 1
-	Glow.Position = UDim2.new(0, -25, 0, -25)
-	Glow.Size = UDim2.new(1, 50, 1, 50)
-	Glow.ZIndex = -1
-	Glow.Image = "rbxassetid://5028857084"
-	Glow.ImageColor3 = Color3.fromRGB(255, 255, 255)
-	Glow.ImageTransparency = 1
-	Glow.Parent = MainGlass
+	local Stroke = Instance.new("UIStroke")
+	Stroke.Color = Color3.fromRGB(255, 255, 255)
+	Stroke.Transparency = 0.4
+	Stroke.Thickness = 2.4
+	Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	Stroke.Parent = MainBody
 
 	local Content = Instance.new("Frame")
 	Content.Size = UDim2.new(1, 0, 1, 0)
 	Content.BackgroundTransparency = 1
-	Content.Parent = MainGlass
-
-	local IconContainer = Instance.new("Frame")
-	IconContainer.Size = UDim2.new(0, 50, 0, 50)
-	IconContainer.Position = UDim2.new(0, 18, 0.5, -25)
-	IconContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	IconContainer.BackgroundTransparency = 0.92
-	IconContainer.Parent = Content
-
-	local IconCorner = Instance.new("UICorner")
-	IconCorner.CornerRadius = UDim.new(0, 14)
-	IconCorner.Parent = IconContainer
+	Content.Parent = MainBody
 
 	local IconImg = Instance.new("ImageLabel")
-	IconImg.Size = UDim2.new(0, 32, 0, 32)
-	IconImg.Position = UDim2.new(0.5, -16, 0.5, -16)
+	IconImg.Size = UDim2.new(0, 30, 0, 30)
+	IconImg.Position = UDim2.new(0, 18, 0.5, -15)
 	IconImg.BackgroundTransparency = 1
-	IconImg.Image = IconAsset
-	IconImg.Parent = IconContainer
+	IconImg.Image = icon or "rbxassetid://6023426926"
+	IconImg.ImageTransparency = 1
+	IconImg.Parent = Content
 
-	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(1, -95, 0, 24)
-	TitleLabel.Position = UDim2.new(0, 80, 0.5, -22)
-	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	TitleLabel.TextSize = 16
-	TitleLabel.Text = Title or "Notification"
-	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	TitleLabel.Parent = Content
+	local TextHold = Instance.new("Frame")
+	TextHold.Size = UDim2.new(1, -90, 1, 0)
+	TextHold.Position = UDim2.new(0, 65, 0, 0)
+	TextHold.BackgroundTransparency = 1
+	TextHold.Parent = Content
 
-	local DescLabel = Instance.new("TextLabel")
-	DescLabel.Size = UDim2.new(1, -95, 0, 32)
-	DescLabel.Position = UDim2.new(0, 80, 0.5, 2)
-	DescLabel.BackgroundTransparency = 1
-	DescLabel.Font = Enum.Font.GothamMedium
-	DescLabel.TextColor3 = Color3.fromRGB(210, 210, 215)
-	DescLabel.TextSize = 13
-	DescLabel.Text = Text or ""
-	DescLabel.TextXAlignment = Enum.TextXAlignment.Left
-	DescLabel.TextYAlignment = Enum.TextYAlignment.Top
-	DescLabel.TextWrapped = true
-	DescLabel.Parent = Content
+	local Ttl = Instance.new("TextLabel")
+	Ttl.Size = UDim2.new(1, 0, 0, 22)
+	Ttl.Position = UDim2.new(0, 0, 0.5, -20)
+	Ttl.BackgroundTransparency = 1
+	Ttl.Font = Enum.Font.GothamBold
+	Ttl.TextColor3 = Color3.fromRGB(15, 15, 15)
+	Ttl.TextSize = 16
+	Ttl.Text = title
+	Ttl.TextXAlignment = Enum.TextXAlignment.Left
+	Ttl.TextTransparency = 1
+	Ttl.Parent = TextHold
 
-	local TimerTrack = Instance.new("Frame")
-	TimerTrack.Size = UDim2.new(1, -40, 0, 3)
-	TimerTrack.Position = UDim2.new(0.5, 0, 1, -8)
-	TimerTrack.AnchorPoint = Vector2.new(0.5, 0)
-	TimerTrack.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	TimerTrack.BackgroundTransparency = 0.94
-	TimerTrack.BorderSizePixel = 0
-	TimerTrack.Parent = MainGlass
+	local Dsc = Instance.new("TextLabel")
+	Dsc.Size = UDim2.new(1, 0, 0, 18)
+	Dsc.Position = UDim2.new(0, 0, 0.5, 2)
+	Dsc.BackgroundTransparency = 1
+	Dsc.Font = Enum.Font.GothamMedium
+	Dsc.TextColor3 = Color3.fromRGB(60, 60, 65)
+	Dsc.TextSize = 13
+	Dsc.Text = desc
+	Dsc.TextXAlignment = Enum.TextXAlignment.Left
+	Dsc.TextTransparency = 1
+	Dsc.Parent = TextHold
 
-	local TimerFill = Instance.new("Frame")
-	TimerFill.Size = UDim2.new(0, 0, 1, 0)
-	TimerFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	TimerFill.BackgroundTransparency = 0.4
-	TimerFill.BorderSizePixel = 0
-	TimerFill.Parent = TimerTrack
+	local Progress = Instance.new("Frame")
+	Progress.Size = UDim2.new(0, 0, 0, 3)
+	Progress.Position = UDim2.new(0, 18, 1, -8)
+	Progress.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Progress.BackgroundTransparency = 0.75
+	Progress.BorderSizePixel = 0
+	Progress.Parent = MainBody
+	Instance.new("UICorner", Progress)
 
-	local TimerCorner = Instance.new("UICorner")
-	TimerCorner.CornerRadius = UDim.new(1, 0)
-	TimerCorner.Parent = TimerTrack
+	local introInfo = TweenInfo.new(0.9, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+	
+	TweenService:Create(Card, introInfo, {Size = UDim2.new(0, targetWidth, 0, targetHeight)}):Play()
+	TweenService:Create(MainBody, introInfo, {Position = UDim2.new(0, 0, 0, 0), Size = UDim2.new(1, 0, 1, 0), GroupTransparency = 0}):Play()
+	TweenService:Create(Corner, introInfo, {CornerRadius = UDim.new(0, 24)}):Play()
 
-	local TimerFillCorner = Instance.new("UICorner")
-	TimerFillCorner.CornerRadius = UDim.new(1, 0)
-	TimerFillCorner.Parent = TimerFill
-
-	local SpringInfo = TweenInfo.new(0.9, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-	local FadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-
-	TweenService:Create(Card, TweenInfo.new(0.5, Enum.EasingStyle.Quart), {Size = UDim2.new(1, 0, 0, 95)}):Play()
-
-	task.delay(0.05, function()
-		TweenService:Create(MainGlass, SpringInfo, {Size = UDim2.new(1, 0, 1, 0), GroupTransparency = 0.15}):Play()
-		TweenService:Create(MainGlass, FadeInfo, {BackgroundTransparency = 0.25}):Play()
-		TweenService:Create(Glow, TweenInfo.new(1.2), {ImageTransparency = 0.7}):Play()
+	task.delay(0.2, function()
+		local fadeInfo = TweenInfo.new(0.4)
+		TweenService:Create(IconImg, fadeInfo, {ImageTransparency = 0}):Play()
+		TweenService:Create(Ttl, fadeInfo, {TextTransparency = 0}):Play()
+		TweenService:Create(Dsc, fadeInfo, {TextTransparency = 0}):Play()
+		TweenService:Create(Progress, TweenInfo.new(dur, Enum.EasingStyle.Linear), {Size = UDim2.new(1, -36, 0, 3)}):Play()
 	end)
 
-	task.delay(0.3, function()
-		TweenService:Create(TimerFill, TweenInfo.new(DisplayTime, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)}):Play()
-	end)
-
-	task.delay(DisplayTime + 0.8, function()
-		local ExitSpring = TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In)
-		TweenService:Create(MainGlass, ExitSpring, {Size = UDim2.new(0.7, 0, 0.7, 0), GroupTransparency = 1}):Play()
-		TweenService:Create(Glow, TweenInfo.new(0.4), {ImageTransparency = 1}):Play()
-
-		task.wait(0.4)
-		local FinalCollapse = TweenService:Create(Card, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Size = UDim2.new(1, 0, 0, 0)})
-		FinalCollapse:Play()
-		FinalCollapse.Completed:Wait()
+	task.delay(dur + 0.8, function()
+		local outroInfo = TweenInfo.new(0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+		
+		TweenService:Create(IconImg, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+		TweenService:Create(Ttl, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+		TweenService:Create(Dsc, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+		TweenService:Create(Progress, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+		
+		task.wait(0.15)
+		
+		TweenService:Create(MainBody, outroInfo, {Position = UDim2.new(0.5, -40, 0, -44), Size = UDim2.new(0, 80, 0, 32), GroupTransparency = 1}):Play()
+		TweenService:Create(Corner, outroInfo, {CornerRadius = UDim.new(1, 0)}):Play()
+		local cardTween = TweenService:Create(Card, outroInfo, {Size = UDim2.new(0, 80, 0, 0)})
+		cardTween:Play()
+		
+		cardTween.Completed:Wait()
 		Card:Destroy()
 	end)
 end
 
-LiquidGlassNotify("Trigon Hub", "Loaded!", "rbxassetid://82500352718600", 5)
+getgenv().LiquidGlassNotify = LiquidGlassNotify
+
+LiquidGlassNotify("Trigon", "Game : Fisch", "rbxassetid://82500352718600", 4)
+task.wait(0.6)
+LiquidGlassNotify("Trigon", "Loaded!", "rbxassetid://82500352718600", 5)
 
 ----------// [  FISCH  ] \\----------
 local Collection = {}; Collection.__index = Collection
