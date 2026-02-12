@@ -104,9 +104,8 @@ function CheckQ()
         {Sea = "ThirdSea", Levels = {2600,2624}, Mon = "Reef Bandit", Quest = "SubmergedQuest1", LevelQuest = 1},
         {Sea = "ThirdSea", Levels = {2625,2650}, Mon = "Coral Pirate", Quest = "SubmergedQuest1", LevelQuest = 2},
         {Sea = "ThirdSea", Levels = {2650,2675}, Mon = "Sea Chanter", Quest = "SubmergedQuest2", LevelQuest = 1},
-        {Sea = "ThirdSea", Levels = {2675,2700}, Mon = "Ocean Prophet", Quest = "SubmergedQuest2", LevelQuest = 2},
-        {Sea = "ThirdSea", Levels = {2700,2725}, Mon = "High Disciple", Quest = "SubmergedQuest3", LevelQuest = 1},
-        {Sea = "ThirdSea", Levels = {2725,9999}, Mon = "Grand Devotee", Quest = "SubmergedQuest3", LevelQuest = 2}
+        {Sea = "ThirdSea", Levels = {2675,2700}, Mon = "High Disciple", Quest = "SubmergedQuest3", LevelQuest = 1},
+        {Sea = "ThirdSea", Levels = {2700,9999}, Mon = "Grand Devotee", Quest = "SubmergedQuest3", LevelQuest = 2}
     }
     
     for _,data in pairs(QuestData) do
@@ -1076,14 +1075,14 @@ Tabs.Info:Textbox({
             wait(1)
             LiquidGlassNotify("Trigon","Retrying","rbxassetid://82500352718600",5)
             wait(math.random(2,5))
-            LiquidGlassNotify("Trigon","Bug Report Sent!","rbxassetid://82500352718600",5)
+            LiquidGlassNotify("Trigon","Bypassed!","rbxassetid://82500352718600",5)
         end,
     })
 
 
     Tabs.Info:Label('Join Discord for more information!')
-    Tabs.Info:Label('Trigon PC : 🟢 Working')
-    Tabs.Info:Label('Trigon Mobile : 🟢 Working')
+    Tabs.Info:Label('Trigon PC : Working')
+    Tabs.Info:Label('Trigon Mobile : Working')
 
     Tabs.Info:Button({
         Title = 'Join Discord',
@@ -1109,14 +1108,13 @@ Tabs.Info:Textbox({
     Tabs.Main:Section('Farm Tab')
 
     ---// Auto Farm \\-----
-    Tabs.Main:Toggle({
+Tabs.Main:Toggle({
     Title = 'Auto Farm [ BETA ]',
     Desc = ' Auto Teleport To Highest Quest Level (Can Teleport Across World)',
     Image = 'sparkle',
-    Value = false,
+    Value = getgenv().Settings.AutoFarmCrossWorld or false,
     Callback = function(v)
         getgenv().Settings.AutoFarmCrossWorld = v
-        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1129,15 +1127,12 @@ task.spawn(function()
             
             if PlayerLv < 700 and FirstSea then
                 getgenv().Settings.AutoFarm = true
-                task.wait(1)
                 CheckQ()
             elseif PlayerLv >= 700 and PlayerLv < 1500 and SecondSea then
                 getgenv().Settings.AutoFarm = true
-                task.wait(1)
                 CheckQ()
             elseif PlayerLv >= 1500 and ThirdSea then
                 getgenv().Settings.AutoFarm = true
-                task.wait(1)
                 CheckQ()
             elseif PlayerLv > 1500 and not ThirdSea then
                 Warp(ThirdSea)
@@ -1156,10 +1151,9 @@ Tabs.Main:Toggle({
     Title = 'Auto Farm [ BETA ]',
     Desc = ' Auto Farm Level',
     Image = 'chevrons-up',
-    Value = false,
+    Value = getgenv().Settings.AutoFarm or false,
     Callback = function(v)
         getgenv().Settings.AutoFarm = v
-        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1169,56 +1163,60 @@ task.spawn(function()
         if not getgenv().Settings.AutoFarm then continue end
         
         local PlayerLevel = game.Players.LocalPlayer.Data.Level.Value
-        if PlayerLevel >= 2600 then
+        if PlayerLevel >= 2600 and ThirdSea then
             local EEV = game:GetService("ReplicatedStorage").Modules.Net["RF/SubmarineWorkerSpeak"]
             EEV:InvokeServer("TravelToSubmergedIsland")
         end
         
+        CheckQ()
+        
         if not Mon or not NameMon or not NameQuest or not LevelQuest then
-            CheckQ()
             task.wait(1)
+            continue
         end
         
-        if not Mon then continue end
+        if not CFrameQuest or not CFrameMon then
+            task.wait(1)
+            continue
+        end
         
         xpcall(function()
             local QuestFrame = game.Players.LocalPlayer.PlayerGui.Main.Quest
             local QuestTitle = QuestFrame.Title.Text
             
-            if not string.find(QuestTitle, NameMon) then
-                Magnet = false
-                task.wait(0.5)
-                game.ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
-            end
-            
             if not QuestFrame.Visible then
                 Magnet = false
-                CheckQ()
                 
-                if CFrameQuest and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 10 then
+                if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 20 then
+                    Tween(CFrameQuest)
+                    task.wait(0.5)
+                end
+                
+                if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 25 then
                     game.ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuest, LevelQuest)
+                    task.wait(1)
                 end
             else
-                CheckQ()
+                if not string.find(QuestTitle, NameMon) then
+                    Magnet = false
+                    task.wait(0.5)
+                    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
+                    task.wait(0.5)
+                    Tween(CFrameQuest)
+                end
                 
                 if workspace.Enemies:FindFirstChild(Mon) then
                     for _,v in pairs(workspace.Enemies:GetChildren()) do
                         if v.Name ~= Mon then continue end
                         if not (v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0) then continue end
                         
-                        local CurrentQuest = game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
-                        
-                        if not string.find(CurrentQuest, NameMon) then
-                            Magnet = false
-                            game.ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
-                            break
+                        if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude > 20 then
+                            Tween(v.HumanoidRootPart.CFrame * Pos)
                         end
                         
                         repeat task.wait()
-                            EquipWeapon(getgenv().SelectWeapon)
+                            EquipWeapon(getgenv().Settings.SelectedWeapon)
                             AutoHaki()
-                            PosMon = v.HumanoidRootPart.CFrame
-                            Tween(v.HumanoidRootPart.CFrame * Pos)
                             v.HumanoidRootPart.CanCollide = false
                             v.Humanoid.WalkSpeed = 0
                             v.Head.CanCollide = false
@@ -1235,12 +1233,16 @@ task.spawn(function()
                 else
                     Magnet = false
                     if CFrameMon then
-                        Tween(CFrameMon)
+                        if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameMon.Position).Magnitude > 20 then
+                            Tween(CFrameMon)
+                        end
                     end
                     
                     local ReplicatedMon = game.ReplicatedStorage:FindFirstChild(Mon)
-                    if ReplicatedMon then
-                        Tween(ReplicatedMon.HumanoidRootPart.CFrame * CFrame.new(15, 10, 2))
+                    if ReplicatedMon and ReplicatedMon:FindFirstChild("HumanoidRootPart") then
+                        if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - ReplicatedMon.HumanoidRootPart.Position).Magnitude > 20 then
+                            Tween(ReplicatedMon.HumanoidRootPart.CFrame * CFrame.new(15, 10, 2))
+                        end
                     end
                 end
             end
