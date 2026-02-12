@@ -802,7 +802,8 @@ local WeaponList = {"Melee","Sword","Gun","Fruit"}
 Tabs.Setting:Dropdown({
     Title = 'Select Weapon',
     Desc = 'Select Your Weapon for Auto Farm',
-    Options = WeaponList,
+    List = WeaponList,
+    Value = "Melee",
     Callback = function(v)
         getgenv().Settings.SelectedWeapon = v
         SaveSettings()
@@ -1431,7 +1432,7 @@ local BossDropdown = Tabs.Main:Dropdown({
     Title = 'Select Boss',
     Desc = 'Select Boss to Farm',
     Image = 'mouse-pointer-click',
-    Options = BossList,
+    List = BossList,
     Value = getgenv().Settings.SelectedBoss or BossList[1],
     Callback = function(v)
         getgenv().Settings.SelectedBoss = v
@@ -1537,7 +1538,8 @@ MaterialList = {"Magma Ore", "Mystic Droplet", "Dragon Scale","Scrap Metal","Fis
 Tabs.Item:Dropdown({
     Title = "Select Material ( Common Materials )",
     Desc = "Select Material to Farm",
-    Options = MaterialList,
+    List = MaterialList,
+    Value = nil,
     Callback = function(v)
         getgenv().Settings.SelectedMaterial = v
         SaveSettings()
