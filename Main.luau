@@ -883,7 +883,7 @@ Tabs.Setting:Toggle({
     end,
 })
 
-Tabs.Settings:Toggle({
+Tabs.Setting:Toggle({
     Title = 'Freeze Monster',
     Desc = 'Freeze Monster (Can Be Detected)',
     Image = 'snowflake',
@@ -894,7 +894,7 @@ Tabs.Settings:Toggle({
     end,
 })
 
-Tabs.Settings:Toggle({
+Tabs.Setting:Toggle({
     Title = 'Set Fast Attack At Fastest Speed (Can Be Detected)',
     Desc = 'Set Fast Attack At Fastest Speed (Can Be Detected)',
     Image = 'zap',
