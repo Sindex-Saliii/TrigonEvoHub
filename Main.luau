@@ -100,7 +100,13 @@ function CheckQ()
         {Sea = "ThirdSea", Levels = {2500,2524}, Mon = "Sun-kissed Warrior", Quest = "TikiQuest2", LevelQuest = 1},
         {Sea = "ThirdSea", Levels = {2525,2549}, Mon = "Isle Champion", Quest = "TikiQuest2", LevelQuest = 2},
         {Sea = "ThirdSea", Levels = {2550,2574}, Mon = "Serpent Hunter", Quest = "TikiQuest3", LevelQuest = 1},
-        {Sea = "ThirdSea", Levels = {2575,2600}, Mon = "Skull Slayer", Quest = "TikiQuest3", LevelQuest = 2}
+        {Sea = "ThirdSea", Levels = {2575,2600}, Mon = "Skull Slayer", Quest = "TikiQuest3", LevelQuest = 2},
+        {Sea = "ThirdSea", Levels = {2600,2624}, Mon = "Reef Bandit", Quest = "SubmergedQuest1", LevelQuest = 1},
+        {Sea = "ThirdSea", Levels = {2625,2650}, Mon = "Coral Pirate", Quest = "SubmergedQuest1", LevelQuest = 2},
+        {Sea = "ThirdSea", Levels = {2650,2675}, Mon = "Sea Chanter", Quest = "SubmergedQuest2", LevelQuest = 1},
+        {Sea = "ThirdSea", Levels = {2675,2700}, Mon = "Ocean Prophet", Quest = "SubmergedQuest2", LevelQuest = 2},
+        {Sea = "ThirdSea", Levels = {2700,2725}, Mon = "High Disciple", Quest = "SubmergedQuest3", LevelQuest = 1},
+        {Sea = "ThirdSea", Levels = {2725,9999}, Mon = "Grand Devotee", Quest = "SubmergedQuest3", LevelQuest = 2}
     }
     
     for _,data in pairs(QuestData) do
@@ -439,7 +445,7 @@ end)
 
 spawn(function()
 game:GetService("RunService").Heartbeat:Connect(function()
-    if  then --- wait ก่อน
+    if getgenv().Settings.Path then --- wait ก่อน
         if not game:GetService("Workspace"):FindFirstChild("LOL") then
             local LOL = Instance.new("Part")
             LOL.Name = "LOL"
@@ -461,7 +467,7 @@ end)
 spawn(function()
     pcall(function()
         while task.wait() do
-            if  then --- รอก่อน
+            if getgenv().Settings.Path then --- รอก่อน
                 if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
                     local Noclip = Instance.new("BodyVelocity")
                     Noclip.Name = "BodyClip"
@@ -477,7 +483,7 @@ end)
 spawn(function()
     pcall(function()
         game:GetService("RunService").Stepped:Connect(function()
-            if  then -- รอก่อน
+            if getgenv().Settings.Path then -- รอก่อน
                 for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
                     if v:IsA("BasePart") then
                         v.CanCollide = false    
@@ -496,7 +502,7 @@ function StopTween(target)
     if not target then
         getgenv().StopTween = true
         task.wait()
-        topos(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+        Tween(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
         task.wait()
         if game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
             game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip"):Destroy()
@@ -721,6 +727,16 @@ end
 local function AutoHaki()
     if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
+    end
+end
+
+local function UnEquipWeapon(Weapon)
+    if game.Players.LocalPlayer.Character:FindFirstChild(Weapon) then
+        getgenv().NotAutoEquip = true
+        task.wait(0.5)
+        game.Players.LocalPlayer.Character:FindFirstChild(Weapon).Parent = game.Players.LocalPlayer.Backpack
+        task.wait(0.1)
+        getgenv().NotAutoEquip = false
     end
 end
 ------// Save Config \\------
@@ -1100,6 +1116,7 @@ Tabs.Info:Textbox({
     Value = false,
     Callback = function(v)
         getgenv().Settings.AutoFarmCrossWorld = v
+        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1142,6 +1159,7 @@ Tabs.Main:Toggle({
     Value = false,
     Callback = function(v)
         getgenv().Settings.AutoFarm = v
+        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1149,6 +1167,12 @@ Tabs.Main:Toggle({
 task.spawn(function()
     while task.wait() do
         if not getgenv().Settings.AutoFarm then continue end
+        
+        local PlayerLevel = game.Players.LocalPlayer.Data.Level.Value
+        if PlayerLevel >= 2600 then
+            local EEV = game:GetService("ReplicatedStorage").Modules.Net["RF/SubmarineWorkerSpeak"]
+            EEV:InvokeServer("TravelToSubmergedIsland")
+        end
         
         if not Mon or not NameMon or not NameQuest or not LevelQuest then
             CheckQ()
@@ -1170,9 +1194,6 @@ task.spawn(function()
             if not QuestFrame.Visible then
                 Magnet = false
                 CheckQ()
-                if CFrameQ then
-                    Tween(CFrameQ)
-                end
                 
                 if CFrameQuest and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 10 then
                     game.ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuest, LevelQuest)
@@ -1237,6 +1258,7 @@ Tabs.Main:Toggle({
     Value = getgenv().Settings.AutoSecondSea or false,
     Callback = function(v)
         getgenv().Settings.AutoSecondSea = v
+        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1311,6 +1333,7 @@ Tabs.Main:Toggle({
     Value = getgenv().Settings.AutoThirdSea or false,
     Callback = function(v)
         getgenv().Settings.AutoThirdSea = v
+        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1436,6 +1459,7 @@ Tabs.Main:Toggle({
     Value = getgenv().Settings.AutoFarmBoss or false,
     Callback = function(v)
         getgenv().Settings.AutoFarmBoss = v
+        getgenv().Settings.Path = v
         SaveSettings()
     end,
 })
@@ -1475,11 +1499,7 @@ task.spawn(function()
             if not string.find(QuestTitle, NameBoss) or not QuestFrame.Visible then
                 game.ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
                 
-                if CFrameQBoss then
-                    Tween(CFrameQBoss)
-                end
-                
-                if getgenv().Settings.AcceptQuestBoss and CFrameQBoss and (CFrameQBoss.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                if getgenv().Settings.AcceptQuestBoss then
                     game.ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", NameQuestBoss, QuestLvBoss)
                 end
             elseif string.find(QuestTitle, NameBoss) and QuestFrame.Visible then
@@ -1510,7 +1530,756 @@ task.spawn(function()
     end
 end)
 
-----// Items Tab \\----
+----// Item Tab \\----
+MaterialList = {"Magma Ore", "Mystic Droplet", "Dragon Scale","Scrap Metal","Fish Tail","Gunpowder","Mini Tusk","Radioactive","Angel Wings"}
+Tabs.Item:Dropdown({
+    Title = "Select Material ( Common Materials )",
+    Desc = "Select Material to Farm",
+    Options = MaterialList,
+    Callback = function(v)
+        getgenv().Settings.SelectedMaterial = v
+        SaveSettings()
+    end,
+})
+
+local farmstatus = "None 🔴"
+Tabs.Item:Label("Current Farming Status : " .. farmstatus)
+
+Tabs.Item:Toggle({
+    Title = 'Auto Farm Material ( Common Materials )',
+    Desc = 'Auto Farm Selected Material',
+    Image = 'pickaxe',
+    Value = getgenv().Settings.AutoFarmMaterial or false,
+    Callback = function(v)
+        getgenv().Settings.AutoFarmMaterial = v
+        getgenv().Settings.Path = v
+        SaveSettings()
+    end,
+})
+
+task.spawn(function()
+    while task.wait() do
+        if getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Magma Ore" then
+            farmstatus = "Magma Ore 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Mystic Droplet" then
+            farmstatus = "Mystic Droplet 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Dragon Scale" then
+            farmstatus = "Dragon Scale 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Scrap Metal" then
+            farmstatus = "Scrap Metal 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Fish Tail" then
+            farmstatus = "Fish Tail 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Gunpowder" then
+            farmstatus = "Gunpowder 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Mini Tusk" then
+            farmstatus = "Mini Tusk 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Radioactive" then
+            farmstatus = "Radioactive 🟢"
+        elseif getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial == "Angel Wings" then
+            farmstatus = "Angel Wings 🟢"
+        else
+            farmstatus = "None 🔴"
+        end
+    end
+end)
+
+local MaterialFarmStatus = {
+    MagmaOre = false,
+    MysticDroplet = false,
+    DragonScale = false,
+    ScrapMetal = false,
+    FishTail = false,
+    Gunpowder = false,
+    MiniTusk = false,
+    Radioactive = false,
+    AngelWings = false
+}
+
+task.spawn(function()
+    while task.wait() do
+        MaterialFarmStatus.MagmaOre = false
+        MaterialFarmStatus.MysticDroplet = false
+        MaterialFarmStatus.DragonScale = false
+        MaterialFarmStatus.ScrapMetal = false
+        MaterialFarmStatus.FishTail = false
+        MaterialFarmStatus.Gunpowder = false
+        MaterialFarmStatus.MiniTusk = false
+        MaterialFarmStatus.Radioactive = false
+        MaterialFarmStatus.AngelWings = false
+        
+        if getgenv().Settings.AutoFarmMaterial and getgenv().Settings.SelectedMaterial then
+            local SelectedMat = getgenv().Settings.SelectedMaterial
+            
+            if FirstSea and SelectedMat == "Magma Ore" then
+                MaterialFarmStatus.MagmaOre = true
+            elseif SecondSea and SelectedMat == "Mystic Droplet" then
+                MaterialFarmStatus.MysticDroplet = true
+            elseif ThirdSea and SelectedMat == "Dragon Scale" then
+                MaterialFarmStatus.DragonScale = true
+            elseif SelectedMat == "Scrap Metal" then
+                MaterialFarmStatus.ScrapMetal = true
+            elseif ThirdSea and SelectedMat == "Fish Tail" then
+                MaterialFarmStatus.FishTail = true
+            elseif ThirdSea and SelectedMat == "Gunpowder" then
+                MaterialFarmStatus.Gunpowder = true
+            elseif ThirdSea and SelectedMat == "Mini Tusk" then
+                MaterialFarmStatus.MiniTusk = true
+            elseif SecondSea and SelectedMat == "Radioactive" then
+                MaterialFarmStatus.Radioactive = true
+            elseif FirstSea and SelectedMat == "Angel Wings" then
+                MaterialFarmStatus.AngelWings = true
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.MysticDroplet then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Water Fighter") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Water Fighter" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.MysticDroplet or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-3352.9013671875, 285.01556396484375, -10534.841796875))
+                local ReplicatedWater = game.ReplicatedStorage:FindFirstChild("Water Fighter")
+                if ReplicatedWater then
+                    Tween(ReplicatedWater.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("MysticDroplet Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.ScrapMetal or not FirstSea then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Brute") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Brute" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.ScrapMetal or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-1132.4202880859375, 14.844913482666016, 4293.30517578125))
+                local ReplicatedBrute = game.ReplicatedStorage:FindFirstChild("Brute")
+                if ReplicatedBrute then
+                    Tween(ReplicatedBrute.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("ScrapMetal FirstSea Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.ScrapMetal or not SecondSea then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Mercenary") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Mercenary" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.ScrapMetal or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-972.307373046875, 73.04473876953125, 1419.2901611328125))
+                local ReplicatedMercenary = game.ReplicatedStorage:FindFirstChild("Mercenary")
+                if ReplicatedMercenary then
+                    Tween(ReplicatedMercenary.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("ScrapMetal SecondSea Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.ScrapMetal or not ThirdSea then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Pirate Millionaire") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Pirate Millionaire" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.ScrapMetal or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-289.6311950683594, 43.8282470703125, 5583.66357421875))
+                local ReplicatedPirate = game.ReplicatedStorage:FindFirstChild("Pirate Millionaire")
+                if ReplicatedPirate then
+                    Tween(ReplicatedPirate.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("ScrapMetal ThirdSea Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.DragonScale then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Dragon Crew Warrior") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Dragon Crew Warrior" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.DragonScale or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(6997.46143, 55.771534, -613.426208, 0.996458054, -1.4075791e-8, -0.0840910524, 1.2038066e-8, 1, -2.4739414e-8, 0.0840910524, 2.3639494e-8, 0.996458054))
+                local ReplicatedDragon = game.ReplicatedStorage:FindFirstChild("Dragon Crew Warrior")
+                if ReplicatedDragon then
+                    Tween(ReplicatedDragon.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("DragonScale Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.Gunpowder then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Pistol Billionaire") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Pistol Billionaire" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.Gunpowder or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-379.6134338378906, 73.84449768066406, 5928.5263671875))
+                local ReplicatedPistol = game.ReplicatedStorage:FindFirstChild("Pistol Billionaire")
+                if ReplicatedPistol then
+                    Tween(ReplicatedPistol.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("Gunpowder Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.FishTail then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Fishman Captain") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Fishman Captain" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.FishTail or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-10961.0126953125, 331.7977600097656, -8914.29296875))
+                local ReplicatedFish = game.ReplicatedStorage:FindFirstChild("Fishman Captain")
+                if ReplicatedFish then
+                    Tween(ReplicatedFish.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("FishTail Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.Radioactive then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Factory Staff") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Factory Staff" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.Radioactive or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(73.07867431640625, 81.86344146728516, -27.470672607421875))
+                local ReplicatedFactory = game.ReplicatedStorage:FindFirstChild("Factory Staff")
+                if ReplicatedFactory then
+                    Tween(ReplicatedFactory.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+            end
+        end, function(err)
+            warn("Radioactive Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.MiniTusk then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Mythological Pirate") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Mythological Pirate" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.MiniTusk or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-13516.0458984375, 469.8182373046875, -6899.16064453125))
+                local ReplicatedMyth = game.ReplicatedStorage:FindFirstChild("Mythological Pirate")
+                if ReplicatedMyth then
+                    Tween(ReplicatedMyth.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("MiniTusk Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.MagmaOre then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Military Spy") or workspace.Enemies:FindFirstChild("Military Soldier") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Military Spy" or v.Name == "Military Soldier" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.MagmaOre or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                Tween(CFrame.new(-5735.75391, 69.97995, 8593.11621, 0.86209774, 1.48827706e-08, -0.50674206, 1.21741008e-08, 1, 5.00807751e-08, 0.50674206, -4.93436509e-08, 0.86209774))
+                local ReplicatedSpy = game.ReplicatedStorage:FindFirstChild("Military Spy")
+                local ReplicatedSoldier = game.ReplicatedStorage:FindFirstChild("Military Soldier")
+                if ReplicatedSpy then
+                    Tween(ReplicatedSpy.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                if ReplicatedSoldier then
+                    Tween(ReplicatedSoldier.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("MagmaOre Error:", err)
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if not MaterialFarmStatus.AngelWings then continue end
+        xpcall(function()
+            if workspace.Enemies:FindFirstChild("Royal Squad") or workspace.Enemies:FindFirstChild("Royal Soldier") then
+                for _,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Royal Soldier" or v.Name == "Royal Squad" then
+                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat task.wait()
+                                AutoHaki()
+                                EquipWeapon(getgenv().SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                v.Head.CanCollide = false
+                                v.HumanoidRootPart.Size = Vector3.new(70,70,70)
+                                Magnet = true
+                                MagnetTarget = v.Name
+                                PosMon = v.HumanoidRootPart.CFrame
+                                Tween(v.HumanoidRootPart.CFrame * Pos)
+                                game:GetService("VirtualUser"):CaptureController()
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(1280,672))
+                            until not MaterialFarmStatus.AngelWings or not v.Parent or v.Humanoid.Health <= 0
+                            Magnet = false
+                            MagnetTarget = ""
+                        end
+                    end
+                end
+            else
+                game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(-7894.6176757813, 5547.1416015625, -380.29119873047))
+                task.wait()
+                Tween(CFrame.new(-7817.5127, 5636.01514, -1523.33228, 0.0800286755, -4.80972595e-10, -0.996792555, 1.06970965e-08, 1, 3.76308845e-10, 0.996792555, -1.06929017e-08, 0.0800286755))
+                local ReplicatedSquad = game.ReplicatedStorage:FindFirstChild("Royal Squad")
+                local ReplicatedRoyal = game.ReplicatedStorage:FindFirstChild("Royal Soldier")
+                if ReplicatedSquad then
+                    Tween(ReplicatedSquad.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                if ReplicatedRoyal then
+                    Tween(ReplicatedRoyal.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                end
+                sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+            end
+        end, function(err)
+            warn("AngelWings Error:", err)
+        end)
+    end
+end)
+
+Tabs.Item:Section("First Sea")
+
+Tabs.Item:Toggle({
+    Title = 'Auto Saber',
+    Desc = 'Auto Saber Quest',
+    Image = 'key',
+    Value = getgenv().Settings.AutoSaber or false,
+    Callback = function(v)
+        getgenv().Settings.AutoSaber = v
+        getgenv().Settings.Path = v 
+        SaveSettings()
+    end,
+})
+
+task.spawn(function()
+    while task.wait() do
+        if getgenv().Settings.AutoSaber and FirstSea and game.Players.LocalPlayer.Data.Level.Value >= 200 then
+            pcall(function()
+                if game:GetService("Workspace").Map.Jungle.Final.Part.Transparency == 0 then
+                        if game:GetService("Workspace").Map.Jungle.QuestPlates.Door.Transparency == 0 then
+                            if (CFrame.new(-1612.55884, 36.9774132, 148.719543, 0.37091279, 3.071715e-9, -0.928667724, 3.970995e-8, 1, 1.9167935e-8, 0.928667724, -4.398698e-8, 0.37091279).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 100 then
+                                Tween(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+                                task.wait(1)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Map.Jungle.QuestPlates.Plate1.Button.CFrame
+                                task.wait(2)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Map.Jungle.QuestPlates.Plate2.Button.CFrame
+                                task.wait(2)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Map.Jungle.QuestPlates.Plate3.Button.CFrame
+                                task.wait(2)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Map.Jungle.QuestPlates.Plate4.Button.CFrame
+                                task.wait(2)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Map.Jungle.QuestPlates.Plate5.Button.CFrame
+                                task.wait(2)
+                            else
+                                Tween(CFrame.new(-1612.55884, 36.9774132, 148.719543, 0.37091279, 3.071715e-9, -0.928667724, 3.970995e-8, 1, 1.9167935e-8, 0.928667724, -4.398698e-8, 0.37091279))
+                            end
+                        else
+                            if game:GetService("Workspace").Map.Desert.Burn.Part.Transparency == 0 then
+                                if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Torch") or game.Players.LocalPlayer.Character:FindFirstChild("Torch") then
+                                    EquipWeapon("Torch")
+                                    Tween(CFrame.new(1114.61475, 5.04679728, 4350.22803, -0.648466587, -1.2879909e-9, 0.761243105, -5.706529e-10, 1, 1.2058454e-9, -0.761243105, 3.4754488e-10, -0.648466587))
+                                  else
+                                  Tween(CFrame.new(-1610.00757, 11.5049858, 164.001587, 0.984807551, -0.167722285, -0.0449818149, 0.17364943, 0.951244235, 0.254912198, 0.00003423728, -0.258850515, 0.965917408))
+                                end
+                            else
+                                if game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","SickMan") ~= 0 then
+                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","GetCup")
+                                    task.wait(0.5)
+                                    EquipWeapon("Cup")
+                                    task.wait(0.5)
+                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","FillCup",game:GetService("Players").LocalPlayer.Character.Cup)
+                                    task.wait()
+                                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","SickMan")
+                                else
+                                    if game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","RichSon") == nil then
+                                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","RichSon")
+                                    elseif game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","RichSon") == 0 then
+                                    if game:GetService("Workspace").Enemies:FindFirstChild("Mob Leader") or game:GetService("ReplicatedStorage"):FindFirstChild("Mob Leader") then
+                                        Tween(CFrame.new(-2883.5400390625, 7.562280178070068, 5441.826171875)) 
+                                            for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                                                if v.Name == "Mob Leader" then
+                                                   if game:GetService("Workspace").Enemies:FindFirstChild("Mob Leader") then
+                                                    if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                                                        repeat task.wait()                                                                                                       
+                                                        AutoHaki()
+                                                        EquipWeapon(getgenv().Settings.AutoSaber)
+                                                        v.HumanoidRootPart.CanCollide = false
+                                                        v.Humanoid.WalkSpeed = 0
+                                                        v.HumanoidRootPart.Size = Vector3.new(50,50,50)                             
+                                                        Tween(v.HumanoidRootPart.CFrame * CFrame.new(0,10,0))
+                                                        sethiddenproperty(game:GetService("Players").LocalPlayer,"SimulationRadius",math.huge)
+                                                        until v.Humanoid.Health <= 0 or not getgenv().Settings.AutoSaber
+                                                     end
+                                                end
+                                                if game:GetService("ReplicatedStorage"):FindFirstChild("Mob Leader") then
+                                                    Tween(game:GetService("ReplicatedStorage"):FindFirstChild("Mob Leader").HumanoidRootPart.CFrame * CFrame.new(0,7,2))
+                                                end
+                                            end
+                                        end
+                                     end
+                                    elseif game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","RichSon") == 1 then
+                                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","RichSon")
+                                        task.wait(0.5)
+                                        EquipWeapon("Relic")
+                                        task.wait(0.5)
+                                        Tween(CFrame.new(-1404.91504, 29.9773273, 3.80598116, 0.876514494, 5.6690688e-9, 0.481375456, 2.53852e-8, 1, -5.799956e-8, -0.481375456, 6.3057264e-8, 0.876514494))
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        if game:GetService("Workspace").Enemies:FindFirstChild("Saber Expert") or game:GetService("ReplicatedStorage"):FindFirstChild("Saber Expert") then
+                            for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                                if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                                    if v.Name == "Saber Expert" then
+                                        repeat task.wait()                                                                           
+                                            EquipWeapon(getgenv().Settings.SelectedWeapon)
+                                            topos(v.HumanoidRootPart.CFrame * Pos)
+                                            v.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
+                                            v.HumanoidRootPart.Transparency = 1
+                                            v.Humanoid.JumpPower = 0
+                                            v.Humanoid.WalkSpeed = 0
+                                            v.HumanoidRootPart.CanCollide = false                                     
+                                            FarmPos = v.HumanoidRootPart.CFrame
+                                            MonFarm = v.Name
+                                        until v.Humanoid.Health <= 0 or not getgenv().Settings.AutoSaber
+                                        if v.Humanoid.Health <= 0 then
+                                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("ProQuestProgress","PlaceRelic")
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+            end)
+        end
+    end
+end)
+
+Tabs.Item:Toggle({
+    Title = 'Auto Pole V1',
+    Desc = 'Auto Pole V1',
+    Image = 'key',
+    Value = getgenv().Settings.AutoPoleV1 or false,
+    Callback = function(v)
+        getgenv().Settings.AutoPoleV1 = v
+        getgenv().Settings.Path = v
+        SaveSettings()
+    end,
+})
+
+spawn(function()
+    while task.wait() do
+        if getgenv().Settings.AutoPoleV1 and FirstSea then
+            pcall(function()
+                if workspace.Enemies:FindFirstChild("Thunder God") then
+                    for _,v in pairs(workspace.Enemies:GetChildren()) do
+                        if v.Name == "Thunder God" then
+                            if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                                repeat task.wait()                                
+                                    AutoHaki()
+                                    EquipWeapon(getgenv().Settings.SelectedWeapon)
+                                    v.HumanoidRootPart.CanCollide = false
+                                    v.Humanoid.WalkSpeed = 0
+                                    v.HumanoidRootPart.Size = Vector3.new(50,50,50)
+                                    Tween(v.HumanoidRootPart.CFrame * Pos)
+                                    sethiddenproperty(game.Players.LocalPlayer,"SimulationRadius",math.huge)
+                                until not getgenv().Settings.AutoPoleV1 or not v.Parent or v.Humanoid.Health <= 0
+                            end
+                        end
+                    end
+                else
+                    UnEquipWeapon(getgenv().Settings.SelectedWeapon)
+                    Tween(CFrame.new(-7619.01220703125, 5618.587890625, -2454.539794921875))
+                    if game.ReplicatedStorage:FindFirstChild("Thunder God") then
+                        Tween(game.ReplicatedStorage.ThunderGod.HumanoidRootPart.CFrame * CFrame.new(2,20,2))
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+Tabs.Item:Toggle({
+    Title = 'Auto Bisento V2 ( Must Have Bisento )',
+    Desc = 'Auto Bisento V2',
+    Image = 'key',
+    Value = getgenv().Settings.AutoBisentoV2 or false,
+    Callback = function(v)
+        getgenv().Settings.AutoBisentoV2 = v
+        getgenv().Settings.Path = v
+        SaveSettings()
+    end,
+})
+
+Tabs.Item:Toggle({
+    Title = 'Auto Shark Saw',
+    Desc = 'Auto Shark Saw',
+    Image = 'key',
+    Value = getgenv().Settings.AutoSharkSaw or false,
+    Callback = function(v)
+        getgenv().Settings.AutoSharkSaw = v
+        getgenv().Settings.Path = v
+        SaveSettings()
+    end,
+})
+
 
 ----// Auto Save Settings \\----
 
@@ -1521,3 +2290,4 @@ task.spawn(function()
 end)
 
 ---// End of Script \\---
+
